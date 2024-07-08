@@ -1,0 +1,131 @@
+(1)독립성 검정 개념
+
+변수가 두 개 이상의 범주로 분할되어 있을 때 사용, 각 범주가 서로 독립적인지 연관성이 있는지 검정하는 방법 
+카이제곱 검정 방법 중 하나 
+
+(2) 카이제곱 검정방법 순서 
+
+1.패키지추가(from sicpy.stats import chi2_contingency)
+2. 데이터를 table로 만들기 [범주형 pd.crosstab /수치형 np.array]
+3. 만든 table로 chi2검정[ch2,p_val,dof[자유도],ex[기대치]]
+
+
+(3)로지스틱 회귀 분석 
+from statsmodels.formula.api import logit  
+
+- logit 함수 전체 결과 확인 코드 
+logit('종속변수명~독립변수명1+독립변수명2+독립변수명3',data=데이터프레임이름).fit().summary()
+
+(4)오즈비 
+
+logit 함수 summary 결과에서 coef는 독립변수의 오즈비에  log(상용로그가 아닌 자연상수 e에 대한 로그)를 씌운 값 (즉 ,log(오즈비))
+
+오즈비를 보면, 해당 독립변수가 종속변수에 미치는 영향을 더 직관적으로 확인할 수 있음
+
+-logit 함수의 계수들을 하나의 array로 확인하는 코드 
+logit('종속변수명~독립변수명1+독립변수명2+독립변수명3',data=데이터프레임이름).fit().params
+
+위 결과를 np.exp()처리를 해주면 각각의 회귀계수들을 밑이 자연상수 e인 지수함수로 변환가능
+
+260.717
+-0.201
+0.702
+
+
+체험판 답 
+
+import pandas as pd
+
+df = pd.read_csv("data/Titanic.csv")
+
+#print(df.info())
+
+#문제1
+#독립성 검정 카이제곱 통계량 
+from scipy.stats import chi2_contingency 
+
+# 교차표 만들기 
+tb=pd.crosstab(df['Gender'],df['Survived'])
+#print(tb)
+
+#카이제곱 검정 
+result=chi2_contingency(tb)
+#print(round(result[0],3))
+#260.717
+
+#문제2 
+#로지스틱 회귀모형 실시 parch 변수의 계수값 
+from statsmodels.formula.api import logit 
+result1=logit('Survived~Gender+SibSp+Parch+Fare',data=df).fit().summary()
+#print(result)
+#print(round(-0.2007,3)) 
+
+#문제3 
+import numpy as np 
+
+result2=logit('Survived~Gender+SibSp+Parch+Fare',data=df).fit().params
+#print(result2)
+#print(np.exp(result2))
+
+추가 
+
+-ttest
+
+종류 
+(1) 단일표본 T 검정 (새로운 신발의 높이 평균은 11cm다.) 
+from scipy.stats import shapiro, wilcoxon, ttest_1smap, ttest_rel, ttes_Ind
+정규성 검정 (shapiro)
+ 
+정규성 만족
+ttest_1samp(표본관측값, 검정기준값)
+ 
+정규성 불만족 
+wilcoxon(x, alternative(less,greater,two.sided)
+
+(2)쌍체표본 T검정 (실험 전 후)
+ ttest_rel(실험 전 , 실험 후 , alternative(less,greater,two.sided)
+
+
+
+ 
+(3)독립표본 T검정 (암수에 따라 고양이의 몸무게는 차이가 있다) 서로다른 모집단의 표본을 비교 
+from scipy.stats import ttest_Ind
+
+가정
+두 모집단은 정규성 만족 
+두 개의 모집단은 서로 독립 
+두 모집단이 등분산성 가정을 만족
+
+등분산 테스트 
+from scipy.stats import levene
+
+
+등분산 가정 만족 
+ttest_Ind(group1,group2,equal_var=True)
+
+등분산 가정 불만족
+ttest_Ind(group1,group2,equal_var=False)
+
+-선형휘귀 분석-
+from statsmodels.formula.api import ols
+
+model = ols(formula = 'Y ~ X1 + X2 + ... + Xn',data = data).fit()
+print(model.summary())
+
+-선형휘귀 모델생성학습-
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv("Hitters.csv")
+print(df.describe())
+df =pd.get_dummies(df,drop_first=True)
+x= df.drop('Salary',axis=1)
+y= df['Salary']
+train_x,test_x,train_y,test_y = train_test_split(x,y,test_size=0.2)
+md = LinearRegression()
+md.fit(train_x,train_y)
+print(md.coef_)
+print(md.intercept_)
+pred = md.predict(test_x)
+print(mean_squared_error(test_y, pred, squared=False))

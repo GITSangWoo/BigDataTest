@@ -1,0 +1,115 @@
+문제 2 
+
+-회귀-   종속(목표변수) 가 수치형 /가격, 수치
+평가지표: mean_squared_error, r2_score , rmse 
+
+(1) 데이터 확인
+print(df.info())
+print(df.head())
+
+(2) 데이터 전처리 (결측값, 라벨인코딩,ID삭제 or 저장 )
+
+df[' x '].fillna(df[' x '].mode()[0],inplace=T)   ->최빈값 
+x=결측값있는 열
+
+(object ->int)
+from sklearn.preprocessing import LabelEncoder
+
+le=Label.Encoder()
+df[' x '] = le.fit_transform(df['x'])
+
+(3) train 값 , test값 준비 
+
+X=train.drop(columns=['종속변수'])  -> 독립변수
+Y=train['종속변수'] -> 종속변수
+
+(4) train값을 train값과 validation(검증)값으로 분리 
+from sklearn.model_selection import train_test_split
+X_train,X_test,Y_train,Y_test = train_test_split().fit_transform(X,Y,test_size=0.5 random_state=2024)
+
+(5)모델링 및 학습  
+from sklearn.ensemble import RandomForestRegressor 
+
+rfr = RandomForestRegressor(n_estimators=120,max_depth=15) 
+(하이퍼 파라미터 = 지속튜닝)
+rfr.fit(X_train,Y_train)
+pred=rfr.predict(X_test)
+
+(6) 모델 평가 
+from sklearn.metrics import mean_squared_error
+rmse=mean_squared_error(Y_test, pred, squared=False)
+
+(7)최종결과 예측 
+test_X_data = test.drop(columns=['종속변수'])
+pred2=rfr.predict(test_X_data)
+
+(8)제출
+
+pd.DataFrame({'price':pred2}).to_csv('result.csv', index= False)
+result=pd.read.csv('result.csv')
+print(result.head(3))
+
+
+-분류-  종속(목표변수)가 카테고리 (남,여 / 생존, 사망)  
+평가지표: accuracy_scroe, f1_score, precision_score,roc_auc_score
+
+(1) 데이터 로드 및 확인 
+import pandas as pd
+
+train = pd.read_csv("data/customer_train.csv")
+test = pd.read_csv("data/customer_test.csv")
+
+#데이터 살펴보기 
+print(train.info())
+print(test.info())
+
+
+
+(2) 결측값 또는 라벨인코딩 (문자열->수치형) 
+#ID저장 
+test_ID=test.iloc[:,0]
+
+#ID컬럼삭제 
+train=train.drop('회원ID',axis=1)
+test=test.drop('회원ID',axis=1)
+
+#결측치 처리
+train.fillna(train['환불금액'].mode()[0],inplace=True)
+test.fillna(train['환불금액'].mode()[0],inplace=True)
+
+#데이터 라벨링 및 종속변수 독립변수 데이터 생성 
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+train['주구매상품']=le.fit_transform(train['주구매상품'])
+train['주구매지점']=le.fit_transform(train['주구매지점'])
+
+le=LabelEncoder()
+test['주구매상품']=le.fit_transform(test['주구매상품'])
+test['주구매지점']=le.fit_transform(test['주구매지점'])
+
+X=train.drop(columns=['성별'])
+Y=train['성별']
+
+#데이터 분리 
+from sklearn.model_selection import train_test_split
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=2024)
+
+(3)모델링 및 학습 (predict() or predict_proba())
+from sklearn.ensemble import RandomForestClassifier
+rfr=RandomForestClassifier(n_estimators=100, max_depth=15, random_state=2024)
+rfr.fit(X_train,Y_train)
+pred=rfr.predict(X_test)
+
+(4)모델의 성능평가 
+from sklearn.metrics import roc_auc_score 
+
+#print(roc_auc_score(pred,Y_test))
+
+(5)테스트 모델 예측 
+pred2=rfr.predict(test)
+
+(6)테스트 결과 제출 및 확인 
+pd.DataFrame({'pred':pred2}).to_csv('result.csv',index=False)
+result=pd.read_csv('result.csv')
+#print(result)
+

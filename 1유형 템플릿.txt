@@ -1,0 +1,96 @@
+1유형 
+
+-데이터 확인- 
+data.describe()
+data. head()
+
+-결측값 확인- 
+data.info()
+print(data.isna().sum())
+print(sum(data.isna().sum())
+print(sum(data.isnull().any(axis=1))
+
+-데이터 범위 변환 -
+
+(1) 정규화
+
+최소-최대 정규화  ->  분자(값-최소) / 분모(최대-최소)
+from sklearn.preprocessing import MinMaxScaler
+
+data = np.array([1,3,5,7,8])
+x = data.reshape(-1, 1) # -1의 의미 : -1 이 있는 위치(행 or 열)의 차원은 원래 배열의 길이와 남은 차원으로 부터 추정"
+scaled_data = MinMaxScaler().fit_transform(x)
+print(scaled_data.flatten())
+
+data가 데이터프레임인 경우 
+data['변수']=MinMaxScaler().fit_transform(data[['변수']])
+
+or  numpy 활용 직접 구하기
+
+(2) 표준화 분자(값-평균)/분모(표본표준편차)
+
+form sklearn.preprocessing import StandardScaler 
+
+data= np.array([1,3,5,7,9])
+x=data.reshape(-1,1)
+scaler=StandardScaler()
+scaled_data=scaler.fit_transform(x)
+print(scaled_data.flatten())
+
+-날짜-
+
+from datetime import datetime 
+
+datetime.strptime("문자열로 표현된 날짜", format)
+객체.total_seconds() 
+
+pd.to_datetime( 데이터프레임 열  , format = " 형식 지정(  "2018-01-02"과 같은 기본형식구조면 지정안해도됌)  )
+
+날짜 검색 예시
+net['date_added']=pd.to_datetime(net['date_added'],format = "%B %d, %Y")
+print(net['date_added'].head())
+result=net[(net['country']=='United Kingdom')&
+           (net['date_added'].dt.year==2018)&
+           (net['date_added'].dt.month==1)]
+
+포맷 형식 
+
+연도
+%Y : 4자리 연도
+%y : 2자리 연도
+
+월
+%m : 월 숫자 표현
+%B : 월 전체 영어 표현 ex):January
+%b : 월 표현 영어 축약형 ex):Jan
+
+일
+%d : 일
+
+시
+%H : 24시간제 시
+%I : 12시간제 시
+
+분
+%M : 분
+
+초
+%S : 초
+
+-표준편차-
+np.std()
+
+ddof  
+0: 모집단 표준편차(기본값)
+1: 표본집단 표준편차
+
+-iqr-
+
+(1) from scipy.stats import iqr 
+   iqr(X)
+(2)np.percentile(x,25)
+(3)np.quantile(x,q=0.25)
+
+-rank-
+pd.Series(x).rank(method=" ")
+method(average,min,first,dense)
