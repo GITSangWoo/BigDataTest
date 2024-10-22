@@ -25,7 +25,7 @@ Y=train['종속변수'] -> 종속변수
 
 (4) train값을 train값과 validation(검증)값으로 분리 
 from sklearn.model_selection import train_test_split
-X_train,X_test,Y_train,Y_test = train_test_split().fit_transform(X,Y,test_size=0.5 random_state=2024)
+X_train,X_test,Y_train,Y_test = train_test_split((X,Y,test_size=0.5 random_state=2024)
 
 (5)모델링 및 학습  
 from sklearn.ensemble import RandomForestRegressor 
